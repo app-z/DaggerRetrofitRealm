@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Books Shop</string>
+    <string name="home">Home</string>
+
+    <string name="error_response_message">Error request from Server : </string>
+</resources>
