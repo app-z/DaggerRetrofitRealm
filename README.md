@@ -1,13 +1,12 @@
 # DaggerRetrofitRealm
 Dagger 2, Retrofit 2, Realm 3
 
-This project about conjunction three framework torgether.
+This project about conjunction three framework together.
 
 Realm is written on native code and if properly included as a plugin it will not significantly increase apk
 
 https://realm.io/news/android-installation-change/
-
-Using the plugin we can now ship Realm as an AAR, as opposed to a JAR. We can also avoid including the annotation processor in the library and make it a standalone package. This means the your final APKs will not have to include the annotation processor, shaving a few kilobytes off your app.
+*Using the plugin we can now ship Realm as an AAR, as opposed to a JAR. We can also avoid including the annotation processor in the library and make it a standalone package. This means the your final APKs will not have to include the annotation processor, shaving a few kilobytes off your app.*
 
 Another useful library from Square is the Dagger. Dagger 2 uses code generation, in contrast to the reflection in the first version.
 Now about Dagger. There are many articles, but I will not enumerate for a long time and copy everything in detail. This article will help the beginner understand how to organize the structure of modules and make injections.
