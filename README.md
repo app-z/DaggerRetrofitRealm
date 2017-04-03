@@ -122,3 +122,56 @@ public void onChange(Object element) {
 }
 ```
 
+For testing HTTP request using ```provideOkHttpClientMock```
+```
+    @Provides
+    @Named("okhttp_mock")
+    @Singleton
+    OkHttpClient provideOkHttpClientMock(Cache cache) {
+
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public okhttp3.Response intercept(Chain chain) throws IOException {
+                // FAKE RESPONSES.
+                final String BOOKS_ = "[{\"id\":\"7\",\"title\":\"Mock Seven is my lucky number\",\"price\":7.77,\"link\":\"/api/v1/items/7\"},{\"id\":\"8\",\"title\":\"A Dance with Dragons\",\"price\":19.01,\"link\":\"/api/v1/items/8\"},{\"id\":\"10\",\"title\":\"Ten ways to a better mind\",\"price\":10.0,\"link\":\"/api/v1/items/10\"},{\"id\":\"42\",\"title\":\"The Hitch-hikers Guide to the Galaxy\",\"price\":5.62,\"link\":\"/api/v1/items/42\"},{\"id\":\"200\",\"title\":\"Book title #200\",\"price\":84.0,\"link\":\"/api/v1/items/200\"},{\"id\":\"201\",\"title\":\"Book title #201\",\"price\":75.0,\"link\":\"/api/v1/items/201\"},{\"id\":\"202\",\"title\":\"Book title #202\",\"price\":22.0,\"link\":\"/api/v1/items/202\"},{\"id\":\"203\",\"title\":\"Book title #203\",\"price\":57.0,\"link\":\"/api/v1/items/203\"},{\"id\":\"204\",\"title\":\"Book title #204\",\"price\":63.0,\"link\":\"/api/v1/items/204\"},{\"id\":\"205\",\"title\":\"Book title #205\",\"price\":63.0,\"link\":\"/api/v1/items/205\"}]";
+                Response response = null;
+                String responseString;
+                // Get Request URI.
+                final URI uri = chain.request().url().uri();
+                // Get Query String.
+                final String query = uri.getQuery();
+                // Parse the Query String.
+                final String[] parsedQuery = query.split("=");
+                responseString = BOOKS_;
+
+                response = new Response.Builder()
+                        .code(200)
+                        .message(responseString)
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_0)
+                        .body(ResponseBody.create(MediaType.parse("application/json"), responseString.getBytes()))
+                        .addHeader("content-type", "application/json")
+                        .build();
+                return response;
+            }
+        };
+
+        OkHttpClient.Builder client = new OkHttpClient.Builder();
+        client.addInterceptor(interceptor);
+        return client.build();
+    }
+```
+
+For include test client just change Retrofit provider argument
+```
+    @Provides
+    @Singleton
+    Retrofit provideRetrofit(Gson gson, @Named("okhttp_mock") OkHttpClient okhttp) {
+        return new Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .baseUrl(mBaseUrl)
+                .client(okhttp)
+                .build();
+    }
+```
+
