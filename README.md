@@ -59,3 +59,66 @@ public class RealmModule {
 @Singleton provideRealm becomes @Inject Realm mRealm
 
 Similarly occurs in the NetModule
+
+```
+@Provides
+@Singleton
+Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient) {
+```
+ProvideOkhttpClient and provideGson, respectively, Gson, OkHttpClient
+
+Next In ApplicationComponent, we use the @Component declaration to enumerate the modules
+
+```
+@Singleton
+@Component(modules = {AppModule.class, NetModule.class, RealmModule.class})
+public interface ApplicationComponent {
+    void inject(MainActivity activity);
+	}
+```
+Let's return to Realm. Used objects should be inherited from RealmObject
+
+Code in Activity:
+```
+mBooksViewAdapter = new BooksViewAdapter(
+        mRealm.where(RealmBook.class).findAllSorted("id", Sort.ASCENDING), this);
+```
+Code in Adapter:
+```
+public BooksViewAdapter(RealmResults<RealmBook> books, OnStartDragListener dragStartListener) {
+    this.mBooks = books;
+```
+Manipulation with data
+```
+public void addBook(View view) {
+    if (!mRealm.isInTransaction())
+        mRealm.beginTransaction();
+    RealmBook book = mRealm.createObject(RealmBook.class);
+    book.setId("1" + Random());
+    book.setTitle("Terminator");
+    book.setLink("http;//rerer/rerer/trytry");
+    book.setPrice(12332d);
+    mRealm.commitTransaction();
+    mBooksViewAdapter.notifyDataSetChanged();
+}
+@Override
+public void onDeleted(int position, String id) {
+    RealmBook realmBooks = mRealm.where(RealmBook.class).equalTo("id", id).findFirst();
+    if (realmBooks != null) {
+        if (!mRealm.isInTransaction())
+            mRealm.beginTransaction();
+        realmBooks.deleteFromRealm();
+        mRealm.commitTransaction();
+    }
+}
+```
+Realm supports events through the RealmChangeListener interface
+
+If we add code to Adapter ```mBooks.addChangeListener(this);``` we can use onChange event
+```
+@Override
+public void onChange(Object element) {
+    notifyDataSetChanged();
+}
+```
+
