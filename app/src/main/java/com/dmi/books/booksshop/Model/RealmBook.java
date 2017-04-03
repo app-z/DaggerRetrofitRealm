@@ -8,26 +8,19 @@ import io.realm.RealmObject;
 
 public class RealmBook extends RealmObject{
 
-    private String id;
+    private Long id;
     private String title;
     private Double price;
     private String link;
 
     public RealmBook(){}
 
-    public RealmBook(String id, String title, double price, String link) {
-        this.id = id;
-        this.title = title;
-        this.price = price;
-        this.link = link;
-    }
 
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
     Retrofit retrofit;
 
     @Inject
-    Realm mRealm;
+    Realm realm;
 
 
     @Override
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
 
         mRecyclerView = (RecyclerView) findViewById(R.id.listViewBooks);
         mBooksViewAdapter = new BooksViewAdapter(
-                mRealm.where(RealmBook.class).findAllSorted("id", Sort.ASCENDING), this);
+                realm.where(RealmBook.class).findAllSorted("id", Sort.ASCENDING), this);
         mRecyclerView.setAdapter(mBooksViewAdapter);
 
         ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mBooksViewAdapter);
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
 
                         RealmBook book = mBooksViewAdapter.getItem(position);
 
-                        String bookId = book.getId();
+                        long bookId = book.getId();
                         //Intent myIntent = new Intent(MainActivity.this, DetailedActivity.class);
                         //myIntent.putExtra(DetailedActivity.BOOK_ID_PARAM, bookId);
                         //startActivity(myIntent);
@@ -117,14 +117,16 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
             @Override
             public void onRefresh() {
                 mCurrentPage = 0;
-                if (!mRealm.isInTransaction())
-                    mRealm.beginTransaction();
-                mRealm.deleteAll();
-                mRealm.commitTransaction();
+                if (!realm.isInTransaction())
+                    realm.beginTransaction();
+                realm.deleteAll();
+                realm.commitTransaction();
                 fetchBooks(false);
             }
         });
 
+        if (savedInstanceState == null)
+            fetchBooks(false);
 
     }
 
@@ -155,15 +157,20 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
 
                 if (listBooks.size() > 0) {
                     //updateLocalProviderData(listBooks);
-                    mRealm.beginTransaction();
+                    realm.beginTransaction();
                     for (Book book : listBooks) {
-                        RealmBook bookRealm = mRealm.createObject(RealmBook.class);
+                        RealmBook bookRealm = realm.createObject(RealmBook.class);
                         bookRealm.setId(book.getId());
                         bookRealm.setTitle(book.getTitle());
                         bookRealm.setPrice(book.getPrice());
                         bookRealm.setLink(book.getLink());
                     }
-                    mRealm.commitTransaction();
+                    realm.commitTransaction();
+                    mRecyclerView.post(new Runnable() {
+                        public void run() {
+                            mBooksViewAdapter.notifyDataSetChanged();
+                        }
+                    });
                 }
 
                 findViewById(R.id.loadingIndicator).setVisibility(View.GONE);
@@ -188,14 +195,14 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
 
 
     public void addBook(View view) {
-        if (!mRealm.isInTransaction())
-            mRealm.beginTransaction();
-        RealmBook book = mRealm.createObject(RealmBook.class);
-        book.setId("1" + mRealm.where(RealmBook.class).count());
+        if (!realm.isInTransaction())
+            realm.beginTransaction();
+        RealmBook book = realm.createObject(RealmBook.class);
+        book.setId(realm.where(RealmBook.class).count() + 1000);
         book.setTitle("Added !!");
         book.setLink("http;//rerer/rerer/trytry");
         book.setPrice(12332d);
-        mRealm.commitTransaction();
+        realm.commitTransaction();
         mBooksViewAdapter.notifyDataSetChanged();
     }
 
@@ -205,15 +212,15 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
     }
 
     @Override
-    public void onDeleted(int position, String id) {
-        RealmBook realmBooks = mRealm.where(RealmBook.class).equalTo("id", id).findFirst();
+    public void onDeleted(int position, long id) {
+        RealmBook realmBooks = realm.where(RealmBook.class).equalTo("id", id).findFirst();
         if (realmBooks != null) {
-            if (!mRealm.isInTransaction())
-                mRealm.beginTransaction();
+            if (!realm.isInTransaction())
+                realm.beginTransaction();
 
             realmBooks.deleteFromRealm();
 
-            mRealm.commitTransaction();
+            realm.commitTransaction();
         }
     }
 
@@ -221,6 +228,6 @@ public class MainActivity extends AppCompatActivity implements OnStartDragListen
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mRealm.close();
+        realm.close();
     }
 }

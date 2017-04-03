@@ -8,7 +8,7 @@ public class Book{
 
     @SerializedName("id")
     @Expose
-    private String id;
+    private Long id;
     @SerializedName("title")
     @Expose
     private String title;
@@ -19,7 +19,7 @@ public class Book{
     @Expose
     private String link;
 
-    public Book(String id, String title, double price, String link) {
+    public Book(Long id, String title, double price, String link) {
         this.id = id;
         this.title = title;
         this.price = price;
@@ -27,11 +27,11 @@ public class Book{
     }
 
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -30,6 +30,6 @@ public interface OnStartDragListener {
      */
     void onStartDrag(RecyclerView.ViewHolder viewHolder);
 
-    void onDeleted(int id, String itemId);
+    void onDeleted(int id, long itemId);
 
 }
